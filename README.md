@@ -1,7 +1,3 @@
-# WE DO NOT GUARANTEE ANY MAINTENANCE OF THIS FORK LONG TERM.
-
-However, we are happy to contribute our fixes to a new maintainer if the current repo stays inactive.
-
 ## Description
 
 Sidekiq strategy to support a granular queue control –
