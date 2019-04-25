@@ -9,15 +9,12 @@ module Sidekiq::LimitFetch::Global
     REFRESH_TIMEOUT = 5
 
     def start!(ttl=HEARTBEAT_TTL, timeout=REFRESH_TIMEOUT)
+      # We run this once syncronously so that callers can have more confidence
+      # that the current process is "valid."
+      run_limit_heartbeat ttl
       Thread.new do
         loop do
-          Sidekiq::LimitFetch.redis_retryable do
-            add_dynamic_queues
-            update_heartbeat ttl
-            note_current_probed_processes
-            invalidate_old_processes
-          end
-
+          run_limit_heartbeat ttl
           sleep timeout
         end
       end
@@ -88,6 +85,16 @@ module Sidekiq::LimitFetch::Global
 
     def heartbeat_key(process=Selector.uuid)
       HEARTBEAT_PREFIX + process
+    end
+
+    private
+    def run_limit_heartbeat(ttl)
+      Sidekiq::LimitFetch.redis_retryable do
+        add_dynamic_queues
+        update_heartbeat ttl
+        note_current_probed_processes
+        invalidate_old_processes
+      end
     end
   end
 end
