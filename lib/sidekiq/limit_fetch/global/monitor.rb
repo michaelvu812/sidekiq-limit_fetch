@@ -57,10 +57,10 @@ module Sidekiq::LimitFetch::Global
     def note_current_probed_processes
       # This method is necessary to avoid a situation where we remove a process "OLDP" from the PROCESS_SET
       # but then our current process "CP" dies. Without this method, we would be stuck with some or all of OLDP's
-      # existing locks forever. However, this method re-adds "OLDP" to the PROCESS_SET to
-      # give us a chance to remove them if there is no heartbeat.
+      # existing locks forever. However, this method re-adds OLDP to the PROCESS_SET to
+      # give us a chance to remove OLDP's uuid if there is no heartbeat.
       #
-      # This will not result in an infinite loop because the only thing that _adds_ process ids to the
+      # This will not result in an infinite loop because the only thing that _adds_ process uuids to the
       # probed locks is actual work. So, eventually, we'll remove all the bad locks from the probed lists,
       # and then remove those entries from the PROCESS_SET one last time.
       Sidekiq.redis do |it|
