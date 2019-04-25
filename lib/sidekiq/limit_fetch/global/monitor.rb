@@ -3,7 +3,6 @@ module Sidekiq::LimitFetch::Global
     extend self
 
     HEARTBEAT_PREFIX = 'limit:heartbeat:'
-    # Denotes the Redis set of all current and some "may need to be invalidated" processes.
     PROCESS_SET = 'limit:processes'
     HEARTBEAT_TTL = 20
     REFRESH_TIMEOUT = 5
