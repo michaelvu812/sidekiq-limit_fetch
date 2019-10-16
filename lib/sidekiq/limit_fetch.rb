@@ -14,6 +14,8 @@ module Sidekiq::LimitFetch
   require_relative 'extensions/queue'
   require_relative 'extensions/manager'
 
+  TIMEOUT = Sidekiq::BasicFetch::TIMEOUT
+
   extend self
 
   def new(_)
@@ -32,14 +34,22 @@ module Sidekiq::LimitFetch
 
   def redis_retryable
     yield
-  rescue Redis::BaseConnectionError
-    sleep 1
+  rescue Redis::BaseConnectionError => error
+    if error.message =~ /^LOADING/
+      sleep TIMEOUT
+      retry
+    else
+      raise
+    end
+  rescue IO::EAGAINWaitReadable
+    sleep TIMEOUT
+    retry
+  rescue Redis::TimeoutError
+    sleep TIMEOUT
     retry
   end
 
   private
-
-  TIMEOUT = Sidekiq::BasicFetch::TIMEOUT
 
   def redis_brpop(queues)
     if queues.empty?
